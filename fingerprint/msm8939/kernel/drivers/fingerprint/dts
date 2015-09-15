@@ -1,0 +1,10 @@
+&spi_0{
+			spidev@0 {
+			compatible = "spidev";
+			reg = <0>;
+			spi-max-frequency = <8000000>;
+			egis,power-gpio = <&msm_gpio 16 0>;
+			egis,reset-gpio = <&msm_gpio 116 0>;
+			egis,int-gpio = <&msm_gpio 118 0>;
+		};
+};
