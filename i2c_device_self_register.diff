@@ -1,0 +1,53 @@
+diff --git a/drivers/input/touchscreen/gt9xx/gt9xx.c b/drivers/input/touchscreen/gt9xx/gt9xx.c
+index d7d8d97..277a08f 100755
+--- a/drivers/input/touchscreen/gt9xx/gt9xx.c
++++ b/drivers/input/touchscreen/gt9xx/gt9xx.c
+@@ -2988,6 +2992,25 @@ static struct i2c_driver goodix_ts_driver = {
+     },
+ };
+ 
++//liaoye
++#if GT9XX_SELF_REGIST
++static int __init gt9xx_platform_init(void)
++{
++
++	/* schematic's i2c bus start at 0, but ACPI start at 1 */
++	int i2c_busnum = 4;/*4 on CR, 6 on Baytrail RVP */
++
++	printk(KERN_INFO "%s:\n", __func__);
++
++	static struct i2c_board_info __initdata gt9xx_i2c_device = {
++		I2C_BOARD_INFO(GTP_I2C_NAME, (0xBA>>1)),
++	};
++
++	return i2c_register_board_info(i2c_busnum, &gt9xx_i2c_device, 1);
++}
++#endif
++
++
+ /*******************************************************    
+ Function:
+     Driver Install function.
+@@ -3012,6 +3035,11 @@ static int __init goodix_ts_init(void)
+     INIT_DELAYED_WORK(&gtp_esd_check_work, gtp_esd_check_func);
+     gtp_esd_check_workqueue = create_workqueue("gtp_esd_check");
+ #endif
++
++#ifdef 	GT9XXX_I2C_BOARD_INFO
++	i2c_register_board_info(4, &goodix_i2c_device, 1);
++#endif
++
+     ret = i2c_add_driver(&goodix_ts_driver);
+     return ret; 
+ }
+@@ -3035,6 +3063,10 @@ static void __exit goodix_ts_exit(void)
+     }
+ }
+ 
++#if GT9XX_SELF_REGIST
++fs_initcall(gt9xx_platform_init);
++#endif
++
+ late_initcall(goodix_ts_init);
+ module_exit(goodix_ts_exit);
+ 
