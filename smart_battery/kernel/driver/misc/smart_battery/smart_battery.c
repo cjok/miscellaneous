@@ -30,6 +30,9 @@ static struct i2c_board_info __initdata sbm_i2c_board_info[] = {
 };
 #endif
 
+static const unsigned char crcTable1[16] = {0x00,0x07,0x0E,0x09, 0x1c,0x1b,0x12,0x15, 0x38,0x3F,0x36,0x31, 0x24,0x23,0x2A,0x2D};
+static const unsigned char crcTable2[16] = {0x00,0x70,0xE0,0x90, 0xC1,0xB1,0x21,0x51, 0x83,0xF3,0x63,0x13, 0x42,0x32,0xA2,0xD2};
+
 static int sbm_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id);
 static int sbm_i2c_remove(struct i2c_client *client);
 #ifndef CONFIG_HAS_EARLYSUSPEND
@@ -119,6 +122,54 @@ static int sbm_i2c_write(struct i2c_client *client, u8 addr, u8 *data, u8 len)
    	return (ret == 1) ? sizeof(buf) : ret;
 }
 
+/*
+* CRC
+*/
+unsigned char SMB_PEC(unsigned char lastCRC, unsigned char newByte)
+{
+	unsigned char index;
+	
+	index = newByte;
+	index ^= lastCRC;
+	index >>= 4;
+	lastCRC &= 0x0F;
+	lastCRC ^= crcTable2[index];
+	
+	index = lastCRC;
+	index ^= newByte;
+	index &= 0x0F;
+	lastCRC &= 0xF0;
+	lastCRC ^= crcTable1[index];
+	
+	return lastCRC;
+}
+
+unsigned char get_crc(unsigned char addr, unsigned char cmd, unsigned char *data, int size)
+{
+	unsigned char lastCRC = 0;
+	int i = 0;
+
+	lastCRC = SMB_PEC(lastCRC, addr & 0xFE);
+	lastCRC = SMB_PEC(lastCRC, cmd);
+	
+	lastCRC = SMB_PEC(lastCRC, addr | 0x1);
+
+	for (i = 0; i < size; i++) {
+		lastCRC = SMB_PEC(lastCRC, data[i]);
+	}
+
+	pr_debug("crc = %x\n", lastCRC);
+	
+	return lastCRC;
+}
+
+
+bool is_crc_correct(unsigned char crc, unsigned char recv_crc)
+{
+	return (crc == recv_crc) ? true : false;
+}
+
+
 static int sbm_open(struct inode *inode, struct file *file)
 {
 
@@ -143,7 +194,7 @@ static long sbm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	void __user *data = NULL;
 	u8 buf[16];
 	int vol_buf[14];
-	int result;
+	int result = -1;
 	int i = 0;
 
     struct i2c_client *client = (struct i2c_client*)file->private_data;
@@ -167,6 +218,30 @@ static long sbm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
     switch (cmd)
     {
 		case TYPE_GET_BATTERY_TEMP:
+        pr_debug("%x \n", cmd);
+	#if 1
+			err = sbm_i2c_read(client, cmd, buf, 3);
+			if (err != 3) {
+                err = -EINVAL;
+				pr_debug("len = %d\n", err);
+                break;
+			}
+
+			pr_debug("buf: %x, %x, %x\n", buf[0], buf[1], buf[2]);
+
+			if (!is_crc_correct(get_crc(SLAVE_ADDR_W, cmd, buf, 2), buf[2])) {
+                err = -EINVAL;
+				pr_debug("ERROR crc is incorrect\n");
+                break;
+			}
+
+			result = buf[0] | (buf[1] << 8);
+	#endif
+			result -= 2731;
+
+			err = __put_user(result, (int __user *)arg);
+            break;
+
 		case TYPE_GET_BATTERY_VOLTAGE:
 		case TYPE_GET_BATTERY_CURRENT:
 		case TYPE_GET_REMAIN_CAPACITY:
@@ -178,6 +253,12 @@ static long sbm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			if (err != 3) {
                 err = -EINVAL;
 				pr_debug("len = %d\n", err);
+                break;
+			}
+
+			if (!is_crc_correct(get_crc(SLAVE_ADDR_W, cmd, buf, 2), buf[2])) {
+                err = -EINVAL;
+				pr_debug("ERROR crc is incorrect\n");
                 break;
 			}
 
@@ -198,6 +279,12 @@ static long sbm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
                 break;
 			}
 
+			if (!is_crc_correct(get_crc(SLAVE_ADDR_W, cmd, buf, 1), buf[1])) {
+                err = -EINVAL;
+				pr_debug("ERROR crc is incorrect\n");
+                break;
+			}
+
 			result = buf[0];
 	#endif
 			err = __put_user(result, (int __user *)arg);
@@ -205,6 +292,8 @@ static long sbm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			break;
 
 		case TYPE_GET_SINGLE_BATTERY_VOLTAGE:
+	 	     pr_debug("%x \n", cmd);
+#if 0
 			err = sbm_i2c_read(client, TYPE_GET_SINGLE_BATTERY_VOLTAGE_1_7, buf, 15);
 			if (err != 15) {
                 err = -EINVAL;
@@ -235,11 +324,43 @@ static long sbm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			vol_buf[11] = buf[6] | (buf[7] << 8);
 			vol_buf[12] = buf[8] | (buf[9] << 8);
 //			vol_buf[13] = buf[10] | (buf[11] << 8);
+#endif
+			for (i = 0; i < 13; i++) {
+				pr_debug("######### %d\n", i);
+				err = sbm_i2c_read(client, vol_cmd[i], buf, 3);
+				pr_debug("buf[0] = 0x%x, buf[1] = 0x%x, buf[2] = 0x%x, err = %d", 
+					buf[0], buf[1], buf[2], err);
+				if (err == 3) {
+					//CRC
+					if (!is_crc_correct(get_crc(SLAVE_ADDR_W, vol_cmd[i], buf, 2), buf[2])) {
+       			        //err = -EINVAL;
+				  		pr_debug("crc is incorrect\n");
+						vol_buf[i] = -1;
+                	//	break;
+					} else {
+						vol_buf[i] = buf[0] | (buf[1] << 8);
+					}
+				} else {
+                	//err = -EINVAL;
+					pr_debug("error ### err = %d\n", err);
+                	//break;
+					vol_buf[i] = -1;
+				}
+				printk("vol_buf[%d] = %d \n", i, vol_buf[i]);
+			}
 
-			if (copy_to_user((void __user *)arg, vol_buf, 13)) {
+			printk("######");
+			for (i = 0; i < 13; i++) {
+				printk("%d ", vol_buf[i]);
+			}
+			printk("######\n");
+
+			if (copy_to_user((void __user *)arg, vol_buf, sizeof(vol_buf))) {
                 err = -EFAULT;
 				pr_debug("copy_to_user err = %d\n", err);
-            }
+            } else {
+				err = 0;
+			}
 			break;
 
         default:
@@ -333,6 +454,20 @@ static int sbm_read_single_status(struct i2c_client *client, int type, int len)
 
 static int sbm_read_all_status(struct i2c_client *client)
 {
+	sbm_read_single_status(client, 0x0, 3);
+	sbm_read_single_status(client, 0x1, 3);
+	sbm_read_single_status(client, 0x2, 3);
+	sbm_read_single_status(client, 0x3, 3);
+	sbm_read_single_status(client, 0x4, 3);
+	sbm_read_single_status(client, 0x5, 3);
+	sbm_read_single_status(client, 0x6, 3);
+	sbm_read_single_status(client, 0x7, 3);
+	sbm_read_single_status(client, 0x11, 3);
+	sbm_read_single_status(client, 0x12, 3);
+	sbm_read_single_status(client, 0x13, 3);
+	sbm_read_single_status(client, 0x14, 3);
+	sbm_read_single_status(client, 0x15, 3);
+
 	sbm_read_single_status(client, TYPE_GET_BATTERY_TEMP, 3);
 	sbm_read_single_status(client, TYPE_GET_BATTERY_VOLTAGE, 3);
 	sbm_read_single_status(client, TYPE_GET_BATTERY_CURRENT, 3);
@@ -341,6 +476,7 @@ static int sbm_read_all_status(struct i2c_client *client)
 	sbm_read_single_status(client, TYPE_GET_REMAIN_CAPACITY, 3);
 	sbm_read_single_status(client, TYPE_GET_FULL_CAPACITY, 3);
 	sbm_read_single_status(client, TYPE_GET_CYCLE_COUNTS, 3);
+
 	sbm_read_single_status(client, TYPE_GET_SINGLE_BATTERY_VOLTAGE_1_7, 15);
 	sbm_read_single_status(client, TYPE_GET_SINGLE_BATTERY_VOLTAGE_8_14, 15);
 
@@ -362,11 +498,11 @@ static int sbm_i2c_probe(struct i2c_client *client, const struct i2c_device_id *
 
 	mdelay(10);
 
-	//sbm_read_all_status(client);
+	sbm_read_all_status(client);
 
 	err = is_device_alive(client);
 	if (err) {
-		goto err_i2c;
+	//	goto err_i2c;
 	}
 
 	sbm_i2c_client  = client;

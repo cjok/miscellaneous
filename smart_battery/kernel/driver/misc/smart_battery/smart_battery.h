@@ -20,6 +20,8 @@
 
 #define MAX_RECV_BUF_SIZE	16
 
+#define SLAVE_ADDR_W	0x16
+
 //IOCTL commands
 #define SIMPLE_MAGIC	's'
 #define TYPE_GET_BATTERY_TEMP		0x08
@@ -33,6 +35,9 @@
 #define TYPE_GET_SINGLE_BATTERY_VOLTAGE_1_7		0xA0
 #define TYPE_GET_SINGLE_BATTERY_VOLTAGE_8_14	0xA1
 #define TYPE_GET_SINGLE_BATTERY_VOLTAGE			0xA2
+
+const static u8 vol_cmd[13] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7,
+		0x11, 0x12, 0x13, 0x14, 0x15};
 
 
 //struct sbm_device {
