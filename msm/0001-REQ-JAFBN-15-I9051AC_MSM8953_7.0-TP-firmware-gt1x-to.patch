@@ -1,0 +1,41 @@
+From 5307528ca510ba5e7d5d48b2312511a1b126af69 Mon Sep 17 00:00:00 2001
+From: "xuhong.yi" <xuhong.yi@tinno.com>
+Date: Fri, 11 Nov 2016 17:37:08 +0800
+Subject: [PATCH] <REQ><JAFBN-15><I9051AC_MSM8953_7.0:TP firmware,gt1x
+ touchpannel driver>
+
+---
+ arm/boot/dts/i9051/msm8953-mtp.dtsi |   17 ++++++++++++++++-
+ 1 个文件被修改，插入 16 行(+)，删除 1 行(-)
+
+diff --git a/arm/boot/dts/i9051/msm8953-mtp.dtsi b/arm/boot/dts/i9051/msm8953-mtp.dtsi
+index e0af520..7dbd388 100755
+--- a/arm/boot/dts/i9051/msm8953-mtp.dtsi
++++ b/arm/boot/dts/i9051/msm8953-mtp.dtsi
+@@ -15,7 +15,22 @@
+ #include "msm8953-audio-mtp.dtsi"
+ #include "msm8953-camera-sensor-mtp.dtsi"
+ 
+-
++&i2c_3 { /*Goodix BLSP1 QUP5 */
++		goodix@5d {
++			compatible = "goodix,gt1x";
++			reg = <0x5d>;
++			interrupt-parent = <&tlmm>;
++			interrupts = <65 0x2008>;
++			//vdd_ana-supply = <&pm8953_l8>;
++			//vcc_i2c-supply = <&pm8953_l6>;
++			pinctrl-names = "pmx_ts_active","pmx_ts_suspend";//,"pmx_ts_release";
++			pinctrl-0 = <&ts_int_active &ts_reset_active &ts_ldo_en_active>;
++			pinctrl-1 = <&ts_int_suspend &ts_reset_suspend &ts_ldo_en_suspend>;
++			goodix,rst-gpio = <&tlmm 64 0x00>;
++			goodix,irq-gpio = <&tlmm 65 0x2008>;
++			goodix,vdd-gpio = <&tlmm 13 0x00>;
++	};
++};
+ 
+ &i2c_5 { /* BLSP2 QUP1 (NFC) */
+ 	nq@28 {
+-- 
+1.7.10.4
+

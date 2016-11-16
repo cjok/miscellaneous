@@ -1,0 +1,222 @@
+From f2966d3238a97c96ef4427369c5014b7b9f472c1 Mon Sep 17 00:00:00 2001
+From: "arvin.xiong" <arvin.xiong@tinno.com>
+Date: Tue, 15 Nov 2016 10:47:15 +0800
+Subject: [PATCH] <REQ><JAFBN-17><I9051AC_MSM8953_7.0:Back camera driver--add
+ back camera&front camera>
+
+---
+ arm/boot/dts/i9051/msm8953-camera-sensor-mtp.dtsi |  109 ++++++++++++---------
+ arm/boot/dts/i9051/msm8953-pinctrl.dtsi           |    8 +-
+ 2 个文件被修改，插入 66 行(+)，删除 51 行(-)
+
+diff --git a/arm/boot/dts/i9051/msm8953-camera-sensor-mtp.dtsi b/arm/boot/dts/i9051/msm8953-camera-sensor-mtp.dtsi
+index 5e406d3..4dfc5dd 100644
+--- a/arm/boot/dts/i9051/msm8953-camera-sensor-mtp.dtsi
++++ b/arm/boot/dts/i9051/msm8953-camera-sensor-mtp.dtsi
+@@ -209,16 +209,16 @@
+ 		qcom,csid-sd-index = <0>;
+ 		qcom,mount-angle = <270>;
+ 		qcom,led-flash-src = <&led_flash0>;
+-		qcom,eeprom-src = <&eeprom0>;
+-		qcom,actuator-src = <&actuator0>;
++		//qcom,eeprom-src = <&eeprom0>;
++		//qcom,actuator-src = <&actuator0>;
+ 		cam_vio-supply = <&pm8953_l6>;
+-		cam_vdig-supply = <&pm8953_l2>;
++		//cam_vdig-supply = <&pm8953_l2>;
+ 		cam_vaf-supply = <&pm8953_l17>;
+-		cam_vana-supply = <&pm8953_l22>;
+-		qcom,cam-vreg-name = "cam_vio", "cam_vdig", "cam_vaf",
+-						"cam_vana";
+-		qcom,cam-vreg-min-voltage = <0 1100000 2850000 2800000>;
+-		qcom,cam-vreg-max-voltage = <0 1100000 2850000 2800000>;
++		//cam_vana-supply = <&pm8953_l22>;
++		qcom,cam-vreg-name = "cam_vio", "cam_vaf";//"cam_vdig", ,"cam_vana"
++						
++		qcom,cam-vreg-min-voltage = <1800000 2850000>;
++		qcom,cam-vreg-max-voltage = <1800000 2850000>;
+ 		qcom,cam-vreg-op-mode = <0 105000 100000 80000>;
+ 		pinctrl-names = "cam_default", "cam_suspend";
+ 		pinctrl-0 = <&cam_sensor_mclk0_default
+@@ -229,15 +229,18 @@
+ 		gpios = <&tlmm 26 0>,
+ 			<&tlmm 40 0>,
+ 			<&tlmm 39 0>,
+-			<&tlmm 134 0>;
++			<&tlmm 89 0>, //
++			<&tlmm 95 0>;  //95
+ 		qcom,gpio-reset = <1>;
+ 		qcom,gpio-standby = <2>;
+-		qcom,gpio-vana = <3>;
+-		qcom,gpio-req-tbl-num = <0 1 2 3>;
+-		qcom,gpio-req-tbl-flags = <1 0 0 0>;
++             qcom,gpio-vdig = <3>;
++		qcom,gpio-vana = <4>;
++		qcom,gpio-req-tbl-num = <0 1 2 3 4>;
++		qcom,gpio-req-tbl-flags = <1 0 0 0 0>;
+ 		qcom,gpio-req-tbl-label = "CAMIF_MCLK0",
+ 			"CAM_RESET0",
+ 			"CAM_STANDBY0",
++			"CAM_VDIG",
+ 			"CAM_VANA";
+ 		qcom,sensor-position = <0>;
+ 		qcom,sensor-mode = <0>;
+@@ -258,36 +261,42 @@
+ 		qcom,mount-angle = <90>;
+ 		qcom,eeprom-src = <&eeprom2>;
+ 		qcom,actuator-src = <&actuator1>;
+-		cam_vdig-supply = <&pm8953_l23>;
+-		cam_vana-supply = <&pm8953_l22>;
++		//cam_vdig-supply = <&pm8953_l23>;
++		//cam_vana-supply = <&pm8953_l22>;
+ 		cam_vio-supply = <&pm8953_l6>;
+-		cam_vaf-supply = <&pm8953_l17>;
+-		qcom,cam-vreg-name = "cam_vdig", "cam_vio", "cam_vana",
+-							"cam_vaf";
+-		qcom,cam-vreg-min-voltage = <1200000 0 2800000 2850000>;
+-		qcom,cam-vreg-max-voltage = <1200000 0 2800000 2850000>;
++		cam_vaf-supply = <&pm8953_l22>;
++		qcom,cam-vreg-name = "cam_vio","cam_vaf";//"cam_vdig", "cam_vio", "cam_vana",
++							//"cam_vaf";
++		qcom,cam-vreg-min-voltage = <1800000  2800000>;
++		qcom,cam-vreg-max-voltage = <1800000  2800000>;
+ 		qcom,cam-vreg-op-mode = <200000 0 80000 100000>;
+ 		pinctrl-names = "cam_default", "cam_suspend";
+-		pinctrl-0 = <&cam_sensor_mclk2_default
++		pinctrl-0 = <&cam_sensor_mclk1_default
+ 				&cam_sensor_front_default>;
+-		pinctrl-1 = <&cam_sensor_mclk2_sleep
++		pinctrl-1 = <&cam_sensor_mclk1_sleep
+ 				&cam_sensor_front_sleep>;
+-		gpios = <&tlmm 28 0>,
++		gpios = <&tlmm 27 0>,
+ 			<&tlmm 131 0>,
+-			<&tlmm 132 0>;
++			<&tlmm 132 0>,
++			<&tlmm 89 0>,//89    90
++			<&tlmm 46 0>;
+ 		qcom,gpio-reset = <1>;
+ 		qcom,gpio-standby = <2>;
+-		qcom,gpio-req-tbl-num = <0 1 2>;
+-		qcom,gpio-req-tbl-flags = <1 0 0>;
++             qcom,gpio-vdig = <3>;
++		qcom,gpio-vana = <4>;
++		qcom,gpio-req-tbl-num = <0 1 2 3 4>;
++		qcom,gpio-req-tbl-flags = <1 0 0 0 0>;
+ 		qcom,gpio-req-tbl-label = "CAMIF_MCLK1",
+ 			"CAM_RESET1",
+-			"CAM_STANDBY1";
++			"CAM_STANDBY1",
++			"CAM_VDIG",
++			"CAM_VANA";
+ 		qcom,sensor-position = <0x100>;
+ 		qcom,sensor-mode = <1>;
+ 		qcom,cci-master = <1>;
+ 		status = "ok";
+-		clocks = <&clock_gcc clk_mclk2_clk_src>,
+-				<&clock_gcc clk_gcc_camss_mclk2_clk>;
++		clocks = <&clock_gcc clk_mclk1_clk_src>,
++				<&clock_gcc clk_gcc_camss_mclk1_clk>;
+ 		clock-names = "cam_src_clk", "cam_clk";
+ 		qcom,clock-rates = <24000000 0>;
+ 	};
+@@ -301,37 +310,43 @@
+ 		qcom,mount-angle = <90>;
+ 		qcom,eeprom-src = <&eeprom1>;
+ 		qcom,actuator-src = <&actuator1>;
+-		cam_vdig-supply = <&pm8953_l23>;
+-		cam_vio-supply = <&pm8953_l6>;
+-		cam_vana-supply = <&pm8953_l22>;
+-		cam_vaf-supply = <&pm8953_l17>;
+-		qcom,cam-vreg-name = "cam_vdig", "cam_vio", "cam_vana",
+-					"cam_vaf";
+-		qcom,cam-vreg-min-voltage = <1175000 0 2800000 2850000>;
+-		qcom,cam-vreg-max-voltage = <1175000 0 2800000 2850000>;
++		//cam_vdig-supply = <&pm8953_l23>;
++		cam_vio-supply = <&pm8953_l6>;//
++		//cam_vana-supply = <&pm8953_l22>;
++		//cam_vaf-supply = <&pm8953_l17>;
++		qcom,cam-vreg-name = "cam_vio";//"cam_vdig", "cam_vio", "cam_vana",
++					//"cam_vaf";
++		qcom,cam-vreg-min-voltage = <1800000>;
++		qcom,cam-vreg-max-voltage = <1800000>;
+ 		qcom,cam-vreg-op-mode = <105000 0 80000 100000>;
+ 		qcom,gpio-no-mux = <0>;
+ 		pinctrl-names = "cam_default", "cam_suspend";
+-		pinctrl-0 = <&cam_sensor_mclk1_default
++		pinctrl-0 = <&cam_sensor_mclk2_default
+ 				&cam_sensor_front1_default>;
+-		pinctrl-1 = <&cam_sensor_mclk1_sleep
++		pinctrl-1 = <&cam_sensor_mclk2_sleep
+ 				&cam_sensor_front1_sleep>;
+-		gpios = <&tlmm 27 0>,
+-			<&tlmm 129 0>,
+-			<&tlmm 130 0>;
++		gpios = <&tlmm 28 0>,
++			<&tlmm 131 0>,
++			<&tlmm 132 0>,
++			<&tlmm 89 0>,
++			<&tlmm 94 0>;
+ 		qcom,gpio-reset = <1>;
+ 		qcom,gpio-standby = <2>;
+-		qcom,gpio-req-tbl-num = <0 1 2>;
+-		qcom,gpio-req-tbl-flags = <1 0 0>;
++              qcom,gpio-vdig = <3>;
++		qcom,gpio-vana = <4>;
++		qcom,gpio-req-tbl-num = <0 1 2 3 4>;
++		qcom,gpio-req-tbl-flags = <1 0 0 0 0>;
+ 		qcom,gpio-req-tbl-label = "CAMIF_MCLK2",
+ 					  "CAM_RESET2",
+-					  "CAM_STANDBY2";
++					  "CAM_STANDBY2",
++					  "CAM_VDIG",
++			                "CAM_VANA";
+ 		qcom,sensor-position = <1>;
+ 		qcom,sensor-mode = <0>;
+-		qcom,cci-master = <1>;
++		qcom,cci-master = <0>;
+ 		status = "ok";
+-		clocks = <&clock_gcc clk_mclk1_clk_src>,
+-			<&clock_gcc clk_gcc_camss_mclk1_clk>;
++		clocks = <&clock_gcc clk_mclk2_clk_src>,
++			<&clock_gcc clk_gcc_camss_mclk2_clk>;
+ 		clock-names = "cam_src_clk", "cam_clk";
+ 		qcom,clock-rates = <24000000 0>;
+ 	};
+diff --git a/arm/boot/dts/i9051/msm8953-pinctrl.dtsi b/arm/boot/dts/i9051/msm8953-pinctrl.dtsi
+index d76f40a..39e936b 100755
+--- a/arm/boot/dts/i9051/msm8953-pinctrl.dtsi
++++ b/arm/boot/dts/i9051/msm8953-pinctrl.dtsi
+@@ -951,12 +951,12 @@
+ 		wsa-vi {
+ 			wsa_vi_on: wsa_vi_on {
+ 				mux {
+-					pins = "gpio94", "gpio95";
++					pins = "gpio126", "gpio127";
+ 					function = "wsa_io";
+ 				};
+ 
+ 				config {
+-					pins = "gpio94", "gpio95";
++					pins = "gpio126", "gpio127";
+ 					drive-strength = <8>; /* 8 MA */
+ 					bias-disable; /* NO pull */
+ 				};
+@@ -964,12 +964,12 @@
+ 
+ 			wsa_vi_off: wsa_vi_off {
+ 				mux {
+-					pins = "gpio94", "gpio95";
++					pins = "gpio126", "gpio127";
+ 					function = "wsa_io";
+ 				};
+ 
+ 				config {
+-					pins = "gpio94", "gpio95";
++					pins = "gpio126", "gpio127";
+ 					drive-strength = <2>; /* 2 MA */
+ 					bias-pull-down;
+ 				};
+-- 
+1.7.10.4
+

@@ -1,0 +1,214 @@
+From c9a0143b07626b787b493d9da66cf010a521b324 Mon Sep 17 00:00:00 2001
+From: "huiyong.yin" <huiyong.yin@tinno.com>
+Date: Mon, 14 Nov 2016 14:49:20 +0800
+Subject: [PATCH] <REQ><HHABM-1><I9051AC_7.0_V1.1: common driver charge driver
+ for i9051>
+
+Change-Id: I4c2dc273471712ca215cffc63c65313c9b7dbbe6
+---
+ .../i9051/batterydata-tinno-3000mah-4400mv.dtsi    |   49 ++++++++++++++++++++
+ arm/boot/dts/i9051/msm-pmi8950.dtsi                |   32 ++++++++++---
+ arm/boot/dts/i9051/msm8953-mtp.dtsi                |   37 ++++++++++++---
+ 3 个文件被修改，插入 105 行(+)，删除 13 行(-)
+ create mode 100644 arm/boot/dts/i9051/batterydata-tinno-3000mah-4400mv.dtsi
+
+diff --git a/arm/boot/dts/i9051/batterydata-tinno-3000mah-4400mv.dtsi b/arm/boot/dts/i9051/batterydata-tinno-3000mah-4400mv.dtsi
+new file mode 100644
+index 0000000..42b8e13
+--- /dev/null
++++ b/arm/boot/dts/i9051/batterydata-tinno-3000mah-4400mv.dtsi
+@@ -0,0 +1,49 @@
++
++qcom,tinno-3000mah {
++	/* #2388598_HYHY_P770AN_ATL_3000mAh_averaged_MasterSlave_Apr11th2016*/
++	qcom,max-voltage-uv = <4400000>;
++	qcom,nom-batt-capacity-mah = <3000>;
++	qcom,batt-id-kohm = <100>;
++	qcom,battery-beta = <3435>;
++	qcom,battery-type = "tinno-3000mah";
++	qcom,chg-rslow-comp-c1 = <2784841>;
++	qcom,chg-rslow-comp-c2 = <4070612>;
++	qcom,chg-rs-to-rslow = <881205>;
++	qcom,chg-rslow-comp-thr = <0xA8>;
++	qcom,checksum = <0xE913>;
++	qcom,gui-version = "PMI8950GUI - 2.0.0.15";
++	qcom,fg-profile-data = [
++		 D9 83 7B 7C 
++		 DF 80 EB 76 
++		 6D 83 73 76 
++		 9F 8A 44 95 
++		 FB 81 3B 9A 
++		 A7 BC A5 C8 
++		 52 13 E9 83 
++		 A1 7C DF 80 
++		 C8 76 61 83 
++		 A6 64 20 88 
++		 E0 8F 2F 82 
++		 13 9A 29 BD 
++		 FB C9 54 0E 
++		 6C 0C 8B 59 
++		 14 70 B2 FD 
++		 68 3D A3 3D 
++		 3F 29 00 00 
++		 5F 44 C1 33 
++		 5E 44 00 00 
++		 00 00 00 00 
++		 00 00 00 00 
++		 27 70 57 6B 
++		 4B 6B 16 88 
++		 88 74 EA 63 
++		 4B 65 3F 7A 
++		 F5 6F F7 62 
++		 14 69 96 A9 
++		 17 3E 63 17 
++		 65 A0 71 0C 
++		 28 00 FF 36 
++		 F0 11 30 03 
++		 00 00 00 0C 
++	];
++};
+diff --git a/arm/boot/dts/i9051/msm-pmi8950.dtsi b/arm/boot/dts/i9051/msm-pmi8950.dtsi
+index 25244c0..9f9a152 100644
+--- a/arm/boot/dts/i9051/msm-pmi8950.dtsi
++++ b/arm/boot/dts/i9051/msm-pmi8950.dtsi
+@@ -202,13 +202,17 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 
+-			qcom,iterm-ma = <100>;
+-			qcom,float-voltage-mv = <4200>;
++                        //add by huiyong.yin 20161114
++			qcom,iterm-ma = <300>;
++			qcom,float-voltage-mv = <4400>;
++
+ 			qcom,resume-delta-mv = <200>;
++			//add by huiyong.yin 20161114
++			qcom,fastchg-current-ma = <3300>;		
+ 			qcom,chg-inhibit-fg;
+ 			qcom,rparasitic-uohm = <100000>;
+ 			qcom,bms-psy-name = "bms";
+-			qcom,thermal-mitigation = <1500 700 600 0>;
++			qcom,thermal-mitigation = <3000 1500 300 0>;//add by huiyong.yin 20161114
+ 			qcom,parallel-usb-min-current-ma = <1400>;
+ 			qcom,parallel-usb-9v-min-current-ma = <900>;
+ 			qcom,parallel-allowed-lowering-ma = <500>;
+@@ -216,7 +220,12 @@
+ 			qcom,force-aicl-rerun;
+ 			qcom,aicl-rerun-period-s = <180>;
+ 			qcom,autoadjust-vfloat;
++			//begin add by huiyong.yin 20161114
++			qcom,float-voltage-comp = <13>; //4100v
++			qcom,fastchg-current-comp = <900>; //900ma
+ 
++			qcom,speed-current = <3300 3000 2400 2300 2000 1000 900 450 400 0>;
++                        //end add by huiyong.yin 20161114
+ 			qcom,chgr@1000 {
+ 				reg = <0x1000 0x100>;
+ 				interrupts =	<0x2 0x10 0x0>,
+@@ -317,15 +326,26 @@
+ 			compatible = "qcom,qpnp-fg";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
++			//begin add by huiyong.yin 20161114
++			qcom,fg-cc-cv-threshold-mv = <4390>;
++			qcom,hold-soc-while-full;
++			qcom,vbat-estimate-diff-mv =<140>;
++			//end add by huiyong.yin 20161114
+ 			qcom,resume-soc = <95>;
+ 			status = "okay";
+ 			qcom,bcl-lm-threshold-ma = <127>;
+ 			qcom,bcl-mh-threshold-ma = <405>;
+-			qcom,fg-iterm-ma = <150>;
+-			qcom,fg-chg-iterm-ma = <100>;
++                        //change by huiyong.yin 20161114
++			qcom,fg-iterm-ma = <300>;
++			qcom,fg-chg-iterm-ma = <250>;
+ 			qcom,pmic-revid = <&pmi8950_revid>;
+-			qcom,fg-cutoff-voltage-mv = <3500>;
++			qcom,fg-cutoff-voltage-mv = <3400>;// change by huiyong.yin 20161114
+ 			qcom,cycle-counter-en;
++			qcom,ext-sense-type;//by huiyong.yin 20161114
++
++			qcom,fg-delta-soc = <1>;//LINE<BUG><HHABM-151><><><20150620>huiyong.yin
++			//add by lishengli for 3430    20160412
++			qcom,thermal-coefficients =[c8 86 c1 50 d3 37];
+ 			qcom,capacity-learning-on;
+ 
+ 			qcom,fg-soc@4000 {
+diff --git a/arm/boot/dts/i9051/msm8953-mtp.dtsi b/arm/boot/dts/i9051/msm8953-mtp.dtsi
+index 4917826..7f93907 100755
+--- a/arm/boot/dts/i9051/msm8953-mtp.dtsi
++++ b/arm/boot/dts/i9051/msm8953-mtp.dtsi
+@@ -15,6 +15,19 @@
+ #include "msm8953-audio-mtp.dtsi"
+ #include "msm8953-camera-sensor-mtp.dtsi"
+ 
++//begin add "qcom,smb1351-charger" for tinno i9051 by huiyong.yin 20161114
++&i2c_2 {
++	/* Parallel-charger configuration */
++	smb1351-charger@1d {
++		compatible = "qcom,smb1351-charger";
++		reg = <0x1d>;
++		qcom,parallel-en-pin-polarity = <1>;
++		qcom,parallel-charger;
++		qcom,float-voltage-mv = <4400>;
++		qcom,recharge-mv = <100>;
++	};
++};
++//end add "qcom,smb1351-charger" for tinno i9051 by huiyong.yin 20161114
+ &i2c_3 { /*Goodix BLSP1 QUP5 */
+ 		goodix@5d {
+ 			compatible = "goodix,gt1x";
+@@ -244,32 +257,42 @@
+ 	status = "ok";
+ };
+ 
+-&pm8953_typec {
++//begin modify for tinno i9051 charge by huiyong.yin 20160826
++/*&pm8953_typec {
+ 	ss-mux-supply = <&pm8953_l13>;
+ 	qcom,ssmux-gpio = <&tlmm 139 GPIO_ACTIVE_HIGH>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&typec_ssmux_config>;
+-};
++};*/
+ 
+ /{
+ 	mtp_batterydata: qcom,battery-data {
+-		qcom,batt-id-range-pct = <15>;
+-		#include "batterydata-itech-3000mah.dtsi"
+-		#include "batterydata-ascent-3450mAh.dtsi"
++//		qcom,batt-id-range-pct = <15>;
++//		#include "batterydata-itech-3000mah.dtsi"
++//		#include "batterydata-ascent-3450mAh.dtsi"
++		qcom,batt-id-range-pct = <100>; //change for battery detect 
++		#include "batterydata-tinno-3000mah-4400mv.dtsi"
+ 	};
+ };
+ 
+ &pmi8950_fg {
+ 	qcom,battery-data = <&mtp_batterydata>;
++	//add by lishengli 20160412
++	qcom,cold-bat-decidegc = <(0)>;
++	qcom,cool-bat-decidegc = <(100)>;
++	qcom,hot-bat-decidegc = <600>;
++	qcom,warm-bat-decidegc = <500>;
++	qcom,bad-battery-detection-enable;
+ };
+ 
+ &pmi8950_charger {
+ 	qcom,battery-data = <&mtp_batterydata>;
+ 	qcom,chg-led-sw-controls;
+ 	qcom,chg-led-support;
+-	qcom,external-typec;
+-	qcom,typec-psy-name = "typec";
++//	qcom,external-typec;
++//	qcom,typec-psy-name = "typec";
+ };
++//end modify for tinno i9051 charge by huiyong.yin 20160826
+ 
+ &pm8953_gpios {
+ 	/* GPIO 2 (NFC_CLK_REQ) */
+-- 
+1.7.10.4
+
