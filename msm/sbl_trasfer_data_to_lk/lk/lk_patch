@@ -1,0 +1,126 @@
+diff --git a/bootloader/lk/app/aboot/aboot.c b/bootloader/lk/app/aboot/aboot.c
+index 0310b63..b1bccf8 100755
+--- a/bootloader/lk/app/aboot/aboot.c
++++ b/bootloader/lk/app/aboot/aboot.c
+@@ -39,6 +39,10 @@
+ #include <kernel/thread.h>
+ #include <arch/ops.h>
+ 
++
++//liaoye
++#include <smem.h>
++
+ #include <dev/flash.h>
+ #include <dev/flash-ubi.h>
+ #include <lib/ptable.h>
+@@ -99,6 +103,9 @@ extern int pm8x41_chgr_ctl_enable(uint8_t enable);
+  char bat_type_buf[50];
+ #endif
+ 
++//liaoye
++char misc_data_buf[24];
++
+ extern  bool target_use_signed_kernel(void);
+ extern void platform_uninit(void);
+ extern void target_uninit(void);
+@@ -392,6 +399,9 @@ if(flag_ramdump_enable)
+ #ifdef TINNO_DETECT_BAT_TYPE
+ 	cmdline_len +=strlen(bat_type_buf);
+ #endif
++	
++	//liaoye
++	cmdline_len +=strlen(misc_data_buf);
+ 
+ 	if(target_use_signed_kernel() && auth_kernel_img) {
+ 		cmdline_len += strlen(auth_kernel);
+@@ -586,6 +596,11 @@ if(flag_ramdump_enable)
+ 		while ((*dst++ = *src++));
+ 	#endif
+ 
++		//liaoye
++		src = misc_data_buf;
++		if (have_cmdline) --dst;
++		while ((*dst++ = *src++));
++
+ 		if(target_use_signed_kernel() && auth_kernel_img) {
+ 			src = auth_kernel;
+ 			if (have_cmdline) --dst;
+@@ -3554,6 +3569,42 @@ void aboot_fastboot_register_commands(void)
+ 	fastboot_publish("variant", (const char *) get_variant);
+ }
+ 
++//liaoye
++static unsigned target_check_power_on_reason(void)
++{
++    unsigned power_on_status = 0;
++    unsigned int status_len = sizeof(power_on_status);
++    unsigned smem_status;
++
++    smem_status = smem_read_alloc_entry(SMEM_POWER_ON_STATUS_INFO,
++                                        &power_on_status, status_len);
++
++    if (smem_status)
++    {
++        dprintf(CRITICAL, "ERROR: unable to read shared memory for power on reason\n");
++    }
++
++    return power_on_status;
++}
++
++
++static int get_misc_data_from_smem(void)
++{
++	int data = 0;
++	unsigned int len = sizeof(data);
++	unsigned smem_status;
++
++	smem_status = smem_read_alloc_entry(SMEM_ID_VENDOR0,
++					    &data, len);
++	if (smem_status) {
++		dprintf(CRITICAL,
++			"ERROR: unable to read shared memory \n");
++	}
++
++	return data;
++}
++
++
+ void aboot_init(const struct app_descriptor *app)
+ {
+ 	unsigned reboot_mode = 0;
+@@ -3572,6 +3623,9 @@ void aboot_init(const struct app_descriptor *app)
+ 	uint32_t bat_type=0;
+ #endif
+ 
++	//liaoye
++	int misc_data = 0;
++
+ 	struct pm8x41_mpp mpp;
+ 	
+ 	/* Setup page size information for nv storage */
+@@ -3794,6 +3848,11 @@ normal_boot:
+ 	bat_type=get_bat_type();
+ 	sprintf(bat_type_buf," tinno.battype=%d",bat_type);
+ #endif	
++
++	//liaoye
++	misc_data =  get_misc_data_from_smem();
++	sprintf(misc_data_buf," misc_data=%d", misc_data);
++
+ 	if (!boot_into_fastboot)
+ 	{
+ 		if (target_is_emmc_boot())
+diff --git a/bootloader/lk/platform/msm_shared/smem.h b/bootloader/lk/platform/msm_shared/smem.h
+index de00014..86f76bf 100755
+--- a/bootloader/lk/platform/msm_shared/smem.h
++++ b/bootloader/lk/platform/msm_shared/smem.h
+@@ -443,6 +443,9 @@ typedef enum {
+ 
+ 	SMEM_APPS_BOOT_MODE = 106,
+ 
++	//liaoye
++	SMEM_ID_VENDOR0 = 134,
++
+ 	SMEM_BOARD_INFO_LOCATION = 137,
+ 
+ 	SMEM_SMD_FIFO_BASE_ID = 338,

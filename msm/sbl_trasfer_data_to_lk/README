@@ -1,0 +1,14 @@
+Question: How to customize SMEM items for OEM use?
+Answer: OEM cannot add new SMEM items by themselves but OEM can use predefined SMEM items 
+instead.
+Details:
+- Complete list of SMEM IDs can be found in \modem_proc\core\api\mproc\smem_type.h
+- SMEM item definitions(smem_mem_type enum) has to be consistent across all the processors.
+- Qualcomm predefined below enums(IDs) for OEM use. so OEM can use below enums(IDs) for OEM use.
+SMEM_ID_VENDOR0
+SMEM_ID_VENDOR1
+SMEM_ID_VENDOR2
+- If OEM needs more than above three, please contact Qualcomm. please note this may take excessive time 
+as it requires Qualcomm Software architecture team review.
+- if new SMEM items is approved, it will always be appended to the end of the enum list. Inserting an item in
+the middle is prohibited.

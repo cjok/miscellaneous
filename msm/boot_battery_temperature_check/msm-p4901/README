@@ -1,0 +1,13 @@
+modified files:
+boot/secboot3/hw/msm8909/sbl1/sbl1_hw.c
+boot/secboot3/src/boot_extern_pmic_interface.h
+api/systemdrivers/pmic/pm_boot.h
+systemdrivers/pmic/framework/inc/pm_utils.h
+systemdrivers/pmic/framework/src/pm_utils.c
+bsp/tools/ddr_debug/build/ddr_debug_8909.scons
+bsp/bootloaders/sbl1/build/msm8909.scons
+boot/secboot3/src/boot_extern_pmic_interface.c
+
+add this function complile sbl1 commandline need use FLAGS: USES_FLAGS=USES_BOOT_BATT_TEMP_CHECK
+./build.sh TARGET_FAMILY=8909 --prod USES_FLAGS=USES_BOOT_BATT_TEMP_CHECK
+

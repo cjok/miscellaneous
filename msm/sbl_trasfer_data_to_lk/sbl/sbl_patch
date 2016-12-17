@@ -1,0 +1,16 @@
+//this function need add after smem initialized
+static pm_err_flag_type pm_misc_data_store_smem(int32 data)
+{
+       int32 *misc_smem_ptr = NULL;
+
+    /* Storing the misc data to shared memory */
+       misc_smem_ptr = (int32 *) smem_alloc(SMEM_ID_VENDOR0, sizeof(int32));
+       if (misc_smem_ptr == NULL){
+               return PM_ERR_FLAG__INVALID;
+       }
+
+       *misc_smem_ptr = data;
+
+       return PM_ERR_FLAG__SUCCESS;
+}
++#endif
