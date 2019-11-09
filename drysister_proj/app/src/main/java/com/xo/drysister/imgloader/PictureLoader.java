@@ -1,4 +1,4 @@
-package com.xo.drysister;
+package com.xo.drysister.imgloader;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
