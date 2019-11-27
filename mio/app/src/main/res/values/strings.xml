@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">mio</string>
+    <string name="tab1_name">收入</string>
+    <string name="tab2_name">支出</string>
+</resources>
