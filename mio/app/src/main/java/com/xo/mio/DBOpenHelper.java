@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.net.PortUnreachableException;
+
 public class DBOpenHelper extends SQLiteOpenHelper {
     final String TAG = "DBOpenHelper";
     public final String TABLE_IN = "tb_in";

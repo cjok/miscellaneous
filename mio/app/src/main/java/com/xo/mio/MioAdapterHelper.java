@@ -41,9 +41,9 @@ public class MioAdapterHelper extends BaseAdapter {
 
     public void addItem(DataType dataType) {
         if (dataType != null) {
-            mData.add();
+            mData.add(dataType);
         }
-        notifyDataSetChanged();
+        //notifyDataSetChanged();
     }
 
 
@@ -76,6 +76,8 @@ public class MioAdapterHelper extends BaseAdapter {
         TextView et_data = convertView.findViewById(R.id.item_data);
         TextView et_note = convertView.findViewById(R.id.item_note);
         TextView et_date = convertView.findViewById(R.id.item_date);
+
+
 
         ///////////////////////////////////////
         for (DataType data : mData) {

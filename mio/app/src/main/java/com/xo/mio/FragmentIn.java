@@ -59,14 +59,13 @@ public class FragmentIn extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_in, null);
-        mContext = v.getContext();
+        mContext = v.getContext( );
 
-        initDB();
+        initDB( );
         initListViewItem(v);
 
         return v;
     }
-
 
 
     public void initDB() {
@@ -76,7 +75,7 @@ public class FragmentIn extends Fragment {
 
 
     public void printInfo() {
-        if (linkedListDatas.size() > 0) {
+        if (linkedListDatas.size( ) > 0) {
             for (DataType dataType : linkedListDatas) {
                 Log.e(Debug.TAG, dataType.toString( ));
             }
@@ -84,7 +83,7 @@ public class FragmentIn extends Fragment {
     }
 
 
-    private void initListViewItem(View v){
+    private void initListViewItem(View v) {
 
         listView = v.findViewById(R.id.listview);
         registerForContextMenu(listView);
@@ -95,35 +94,29 @@ public class FragmentIn extends Fragment {
 
         linkedListDatas = mioDataBase.QueryAllToLinkedList(MioDataBase.TABLE_IN);
 
-        printInfo();
+        printInfo( );
 
-       // if (linkedListDatas.size() > 0) {
-            mioAdapterHelper = new MioAdapterHelper(linkedListDatas, mContext);
+        mioAdapterHelper = new MioAdapterHelper(linkedListDatas, mContext);
+        listView.setAdapter(mioAdapterHelper);
 
-            listView.setAdapter(mioAdapterHelper);
-      //  } else {
-        //    Toast.makeText(mContext, "无记录!", Toast.LENGTH_LONG).show();
-       // }
 
     }
 
-    private void RefreshListView() {
+    private void RefreshListView(DataType dataType) {
 
-        //linkedListDatas = mioDataBase.QueryAllToLinkedList(MioDataBase.TABLE_IN);
+        mioAdapterHelper.addItem(dataType);
 
-        if (linkedListDatas != null) {
-            if (mioAdapterHelper == null) {
-                mioAdapterHelper = new MioAdapterHelper(linkedListDatas, mContext);
-                listView.setAdapter(mioAdapterHelper);
-            } else {
-                mioAdapterHelper.reFresh(linkedListDatas);
-                mioAdapterHelper.notifyDataSetChanged();
-            }
-
+        linkedListDatas.clear( );
+        linkedListDatas = mioDataBase.QueryAllToLinkedList(MioDataBase.TABLE_IN);
+        if (linkedListDatas.size() == 0) {
+            mioDataBase.resetId(MioDataBase.TABLE_IN);
         }
+        mioAdapterHelper.reFresh(linkedListDatas);
+        mioAdapterHelper.notifyDataSetChanged( );
+
     }
 
-    private View.OnClickListener  listenerAdd = new View.OnClickListener( ) {
+    private View.OnClickListener listenerAdd = new View.OnClickListener( ) {
         @Override
         public void onClick(View v) {
             onAddInItem(v);
@@ -148,11 +141,11 @@ public class FragmentIn extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         String category, data, note, date;
 
-                        category = et_category.getText().toString();
-                        note = et_note.getText().toString();
-                        data = et_data.getText().toString();
+                        category = et_category.getText( ).toString( );
+                        note = et_note.getText( ).toString( );
+                        data = et_data.getText( ).toString( );
 
-                        if (!category.isEmpty() && !data.isEmpty()) {
+                        if (!category.isEmpty( ) && !data.isEmpty( )) {
 
                             DataType dataType = new DataType( );
 
@@ -160,30 +153,30 @@ public class FragmentIn extends Fragment {
                             dataType.setId(0);
                             dataType.setCategory(category);
                             dataType.setData(Integer.parseInt(data));
-                            dataType.setNote((note.isEmpty()) ? " " : note);
+                            dataType.setNote((note.isEmpty( )) ? " " : note);
 
-                            Calendar calendar = Calendar.getInstance();
+                            Calendar calendar = Calendar.getInstance( );
                             int year = calendar.get(Calendar.YEAR);
                             int month = calendar.get(Calendar.MONTH) + 1;
                             int day = calendar.get(Calendar.DAY_OF_MONTH);
                             StringBuffer sb = new StringBuffer(year + "." + month + "." + day);
-                            dataType.setDate(sb.toString());
+                            dataType.setDate(sb.toString( ));
 
                             mioDataBase.Insert(MioDataBase.TABLE_IN, dataType);
-                            linkedListDatas = mioDataBase.QueryAllToLinkedList(MioDataBase.TABLE_IN);
+                            //linkedListDatas = mioDataBase.QueryAllToLinkedList(MioDataBase.TABLE_IN);
 
-                            mioAdapterHelper.addItem(dataType);
+                            // mioAdapterHelper.addItem(dataType);
 
-                            //RefreshListView();
+                            RefreshListView(dataType);
 
                         } else {
-                            Toast.makeText(mContext, "请输入完整信息", Toast.LENGTH_LONG).show();
+                            Toast.makeText(mContext, "请输入完整信息", Toast.LENGTH_LONG).show( );
                         }
                     }
                 })
-                .create();
+                .create( );
 
-        alertDialog.show();
+        alertDialog.show( );
     }
 
 
@@ -192,12 +185,12 @@ public class FragmentIn extends Fragment {
         final EditText et_category = addView.findViewById(R.id.et_category);
         final EditText et_data = addView.findViewById(R.id.et_data);
         final EditText et_note = addView.findViewById(R.id.et_note);
-        final int id = dataType.getId();
+        final int id = dataType.getId( );
 
-        et_category.setText(dataType.getCategory());
-        et_data.setText(String.valueOf(dataType.getData()));
-        if (!dataType.getNote().isEmpty()) {
-            et_note.setText(dataType.getNote());
+        et_category.setText(dataType.getCategory( ));
+        et_data.setText(String.valueOf(dataType.getData( )));
+        if (!dataType.getNote( ).isEmpty( )) {
+            et_note.setText(dataType.getNote( ));
         }
 
 
@@ -210,41 +203,41 @@ public class FragmentIn extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         String category, data, note, date;
 
-                        category = et_category.getText().toString();
-                        note = et_note.getText().toString();
-                        data = et_data.getText().toString();
+                        category = et_category.getText( ).toString( );
+                        note = et_note.getText( ).toString( );
+                        data = et_data.getText( ).toString( );
 
-                        if (!category.isEmpty() && !data.isEmpty()) {
+                        if (!category.isEmpty( ) && !data.isEmpty( )) {
 
                             DataType dataType = new DataType( );
                             dataType.setId(id);
                             dataType.setCategory(category);
                             dataType.setData(Integer.parseInt(data));
-                            dataType.setNote((note.isEmpty()) ? " " : note);
+                            dataType.setNote((note.isEmpty( )) ? " " : note);
 
-                            Calendar calendar = Calendar.getInstance();
+                            Calendar calendar = Calendar.getInstance( );
                             int year = calendar.get(Calendar.YEAR);
                             int month = calendar.get(Calendar.MONTH) + 1;
                             int day = calendar.get(Calendar.DAY_OF_MONTH);
                             StringBuffer sb = new StringBuffer(year + "." + month + "." + day);
-                            dataType.setDate(sb.toString());
+                            dataType.setDate(sb.toString( ));
 
                             //mioDataBase.Insert(MioDataBase.TABLE_IN, dataType);
 
                             mioDataBase.UpdateById(MioDataBase.TABLE_IN, dataType);
-                            linkedListDatas = mioDataBase.QueryAllToLinkedList(MioDataBase.TABLE_IN);
-                            mioAdapterHelper.updateItem(dataType, position);
+                            //linkedListDatas = mioDataBase.QueryAllToLinkedList(MioDataBase.TABLE_IN);
+                            //mioAdapterHelper.updateItem(dataType, position);
 
-                            //RefreshListView();
+                            RefreshListView(dataType);
 
                         } else {
-                            Toast.makeText(mContext, "请输入完整信息", Toast.LENGTH_LONG).show();
+                            Toast.makeText(mContext, "请输入完整信息", Toast.LENGTH_LONG).show( );
                         }
                     }
                 })
-                .create();
+                .create( );
 
-        alertDialog.show();
+        alertDialog.show( );
     }
 
 
@@ -260,24 +253,24 @@ public class FragmentIn extends Fragment {
 
     public void deleteItem(DataType dataType) {
 
-        mioDataBase.DeleteById(MioDataBase.TABLE_IN, dataType.getId());
-        linkedListDatas = mioDataBase.QueryAllToLinkedList(MioDataBase.TABLE_IN);
+        mioDataBase.DeleteById(MioDataBase.TABLE_IN, dataType.getId( ));
+        //linkedListDatas = mioDataBase.QueryAllToLinkedList(MioDataBase.TABLE_IN);
 
-        mioAdapterHelper.removeItem(dataType);
-       // RefreshListView();
+        //mioAdapterHelper.removeItem(dataType);
+        RefreshListView(dataType);
     }
 
 
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
-        AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo( );
 
         int position = menuInfo.position;
         DataType dataType = (DataType) mioAdapterHelper.getItem(position);
-        Log.e("onContextEEE", dataType.toString());
+        Log.e("onContextEEE", dataType.toString( ));
 
 
-        switch (item.getItemId()) {
+        switch (item.getItemId( )) {
             case R.id.menu_update:
                 updateItem(dataType, position);
                 break;

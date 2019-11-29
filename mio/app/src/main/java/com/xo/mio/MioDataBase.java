@@ -15,6 +15,9 @@ import java.util.Map;
 public class MioDataBase {
     public final static String TABLE_IN = "tb_in";
     public final static String TABLE_OUT = "tb_out";
+    final String RESET_ID_IN = "DELETE FROM sqlite_sequence WHERE name = 'tb_in'";
+    final String RESET_ID_OUT = "DELETE FROM sqlite_sequence WHERE name = 'tb_out'";
+
 
     private DBOpenHelper dbOpenHelper;
     private SQLiteDatabase db;
@@ -26,8 +29,17 @@ public class MioDataBase {
         this.dbOpenHelper = dbOpenHelper;
         this.mContext = mContext;
         db = dbOpenHelper.getWritableDatabase();
-
     }
+
+    public void resetId(String tablename) {
+        if (tablename.equals(TABLE_IN)) {
+            db.execSQL(RESET_ID_IN);
+        } else if (tablename.equals(TABLE_OUT)){
+            db.execSQL(RESET_ID_OUT);
+        }
+    }
+
+
 
     public void Insert(String tableName, DataType dataType) {
 
