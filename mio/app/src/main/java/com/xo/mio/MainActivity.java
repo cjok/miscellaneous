@@ -1,12 +1,21 @@
 package com.xo.mio;
 
 import android.os.Bundle;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class MainActivity extends AppCompatActivity {
+
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -26,5 +35,26 @@ public class MainActivity extends AppCompatActivity {
         actionBar.addTab(actionBar.newTab()
                 .setText(getResources().getString(R.string.tab2_name))
                 .setTabListener(new MioTabListener(this, FragmentOut.class)));
+
+
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

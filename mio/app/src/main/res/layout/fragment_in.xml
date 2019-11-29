@@ -1,12 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragmentin_ll"
+    android:id="@+id/fragmentin_rl"
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
     android:background="#8BC34A"
     android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+
+            android:text="ID" />
+
+        <TextView
+            android:layout_width="@dimen/item_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+
+            android:text="款项" />
+
+        <TextView
+            android:layout_width="@dimen/item_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+
+            android:text="金额" />
+
+        <TextView
+            android:layout_width="@dimen/item_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+
+            android:text="备注" />
+
+        <TextView
+            android:layout_width="@dimen/item_width"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+
+            android:text="日期" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/btn_add"
@@ -15,20 +56,21 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
-        android:onClick="onAddInItem"
         android:text="add" />
 
-    <ScrollView
+    <LinearLayout
+        android:id="@+id/ll1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:layout_marginTop="30dp"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/ll1"
+        <ListView
+            android:id="@+id/listview"
             android:layout_width="match_parent"
-            android:layout_height="400dp"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"></ListView>
 
-        </LinearLayout>
-    </ScrollView>
+    </LinearLayout>
+
 
 </RelativeLayout>

@@ -7,10 +7,16 @@ import android.util.Log;
 
 public class DBOpenHelper extends SQLiteOpenHelper {
     final String TAG = "DBOpenHelper";
+    public final String TABLE_IN = "tb_in";
+    public final String TABLE_OUT = "tb_out";
 
-    final String CREATE_PERSONINFO_TAB =
-            "create table tb_personinfo (_id integer primary key autoincrement, " +
-                    "name text, sex text, number integer)";
+    final String CREATE_IN_TAB =
+            "create table " + TABLE_IN + "(id integer primary key autoincrement, " +
+                    "category text, data integer, note text, date text)";
+
+    final String CREATE_OUT_TAB =
+            "create table " + TABLE_IN + "(id integer primary key autoincrement, " +
+                    "category text, data integer, note text, date text)";
 
     public DBOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
@@ -18,7 +24,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_PERSONINFO_TAB);
+        db.execSQL(CREATE_IN_TAB);
     }
 
     @Override
